@@ -1,0 +1,25 @@
+services:
+  neon-local:
+    image: neondatabase/neon_local:latest
+    env_file:
+      - ${DEV_ENV_FILE:-.env.development}
+    environment:
+      NEON_API_KEY: ${NEON_API_KEY}
+      NEON_PROJECT_ID: ${NEON_PROJECT_ID}
+      PARENT_BRANCH_ID: ${PARENT_BRANCH_ID}
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      target: development
+    env_file:
+      - .env.development
+    depends_on:
+      - neon-local
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules

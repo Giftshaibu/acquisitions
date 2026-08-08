@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    init: true
+    ports:
+      - "${PORT:-3000}:3000"
+    restart: unless-stopped
+
+  migrate:
+    profiles: ["migration"]
+    build:
+      context: .
+      target: migration
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    command: npm run db:migrate
