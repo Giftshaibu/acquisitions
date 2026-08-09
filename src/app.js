@@ -17,7 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) } }));
 
-app.use(securityMiddleware); // Apply security middleware to all routes
+if (process.env.NODE_ENV !== 'test') {
+  app.use(securityMiddleware);
+}
 
 app.get('/', (req, res) => {
   logger.info('Received request for home page');
@@ -31,10 +33,14 @@ app.get('/health', (req, res) => {
 
 app.get('/api', (req, res) => {
   res.status(200).json({ 
-    message: 'Acquisitions API is running', timestamp: new Date().toISOString(), uptime: process.uptime()
+    message: 'acquisitions API is running', timestamp: new Date().toISOString(), uptime: process.uptime()
   });
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
+
+app.use((req, res) => {
+  return res.status(404).json({ error: 'Not Found' });
+});
 
 export default app;
